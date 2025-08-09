@@ -203,6 +203,17 @@ export const insertStudentActivitySchema = createInsertSchema(studentActivity).o
   createdAt: true,
 });
 
+// Admin-related insert schemas
+export const insertAdminNotificationSchema = createInsertSchema(adminNotifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSystemLogSchema = createInsertSchema(systemLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -217,6 +228,10 @@ export type Enrollment = typeof enrollments.$inferSelect;
 export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
 export type StudentActivity = typeof studentActivity.$inferSelect;
 export type InsertStudentActivity = z.infer<typeof insertStudentActivitySchema>;
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
+export type SystemLog = typeof systemLogs.$inferSelect;
+export type InsertSystemLog = z.infer<typeof insertSystemLogSchema>;
 
 // Extended types for API responses
 export type CourseWithDetails = Course & {

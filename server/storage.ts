@@ -5,6 +5,8 @@ import {
   courseMaterials,
   enrollments,
   studentActivity,
+  adminNotifications,
+  systemLogs,
   type User,
   type UpsertUser,
   type Course,
@@ -66,6 +68,33 @@ export interface IStorage {
   // Admin operations
   getAdminDashboardStats(): Promise<AdminDashboardStats>;
   getPlatformAnalytics(timeRange?: string): Promise<any>;
+  // Admin notifications
+  getAdminNotifications(): Promise<any[]>;
+  getUnreadNotificationSummary(): Promise<{ count: number; pendingReports: number; activeUsers: number; systemAlerts: number }>;
+  markAllNotificationsRead(): Promise<number>;
+  // System logs
+  getSystemLogs(filters?: {
+    search?: string;
+    severity?: string;
+    userId?: string;
+    entityType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ total: number; logs: any[] }>;
+  createSystemLog(log: {
+    action: string;
+    description?: string | null;
+    userId?: string | null;
+    entityType?: string | null;
+    entityId?: string | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    metadata?: any;
+    severity?: string;
+  }): Promise<any>;
+  clearSystemLogs(olderThanDays?: number): Promise<number>;
 }
 
 export class Storage implements IStorage {
@@ -135,7 +164,7 @@ export class Storage implements IStorage {
     }
 
     if (filters?.role) {
-      query = query.where(eq(users.role, filters.role)) as any;
+      query = query.where(eq(users.role, filters.role as any)) as any;
     }
 
     return await query;
@@ -190,7 +219,7 @@ export class Storage implements IStorage {
       .leftJoin(categories, eq(courses.categoryId, categories.id))
       .where(eq(courses.teacherId, teacherId));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({ 
       ...row,
       enrollmentCount: 0,
       avgRating: null,
@@ -248,7 +277,7 @@ export class Storage implements IStorage {
       avgRating: null,
       revenue: 0,
       materials,
-    };
+    } as CourseWithDetails;
   }
 
   async createCourse(course: InsertCourse): Promise<Course> {
@@ -299,7 +328,7 @@ export class Storage implements IStorage {
       .leftJoin(categories, eq(courses.categoryId, categories.id))
       .where(eq(courses.status, 'published'));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({
       ...row,
       enrollmentCount: 0,
       avgRating: null,
@@ -345,7 +374,7 @@ export class Storage implements IStorage {
       .leftJoin(users, eq(courses.teacherId, users.id))
       .leftJoin(categories, eq(courses.categoryId, categories.id));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({
       ...row,
       enrollmentCount: 0,
       avgRating: null,
@@ -449,6 +478,126 @@ export class Storage implements IStorage {
       topTeachers: [],
       recentActivity: [],
     };
+  }
+
+  // Admin notifications
+  async getAdminNotifications(): Promise<any[]> {
+    const rows = await db.select().from(adminNotifications).orderBy(desc(adminNotifications.createdAt));
+    return rows as any[];
+  }
+
+  async getUnreadNotificationSummary(): Promise<{ count: number; pendingReports: number; activeUsers: number; systemAlerts: number }> {
+    const [unread] = await db.select({ c: count() }).from(adminNotifications).where(eq(adminNotifications.isRead as any, false as any));
+    const [warnings] = await db.select({ c: count() }).from(adminNotifications).where(eq(adminNotifications.type as any, 'warning' as any));
+    const [errors] = await db.select({ c: count() }).from(adminNotifications).where(eq(adminNotifications.type as any, 'error' as any));
+    const [usersCount] = await db.select({ c: count() }).from(users);
+
+    return {
+      count: (unread?.c as unknown as number) ?? 0,
+      pendingReports: (warnings?.c as unknown as number) ?? 0,
+      activeUsers: (usersCount?.c as unknown as number) ?? 0,
+      systemAlerts: (errors?.c as unknown as number) ?? 0,
+    };
+  }
+
+  async markAllNotificationsRead(): Promise<number> {
+    await db.update(adminNotifications).set({ isRead: true as any });
+    const [unread] = await db.select({ c: count() }).from(adminNotifications).where(eq(adminNotifications.isRead as any, false as any));
+    return (unread?.c as unknown as number) ?? 0;
+  }
+
+  // System logs
+  async getSystemLogs(filters?: {
+    search?: string;
+    severity?: string;
+    userId?: string;
+    entityType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ total: number; logs: any[] }> {
+    const whereClauses: any[] = [];
+
+    if (filters?.search) {
+      whereClauses.push(
+        or(
+          like(systemLogs.action, `%${filters.search}%`),
+          like(systemLogs.description, `%${filters.search}%`)
+        ) as any
+      );
+    }
+    if (filters?.severity) {
+      whereClauses.push(eq(systemLogs.severity as any, filters.severity as any));
+    }
+    if (filters?.userId) {
+      whereClauses.push(eq(systemLogs.userId, filters.userId));
+    }
+    if (filters?.entityType) {
+      whereClauses.push(eq(systemLogs.entityType, filters.entityType));
+    }
+    if (filters?.dateFrom) {
+      whereClauses.push(gte(systemLogs.createdAt as any, new Date(filters.dateFrom) as any));
+    }
+    if (filters?.dateTo) {
+      whereClauses.push(lte(systemLogs.createdAt as any, new Date(filters.dateTo) as any));
+    }
+
+    const whereExpr = whereClauses.length > 0 ? (and(...whereClauses) as any) : undefined;
+
+    const [totalRow] = await db.select({ c: count() }).from(systemLogs).where(whereExpr as any);
+    const total = (totalRow?.c as unknown as number) ?? 0;
+
+    const limit = Math.min(filters?.limit ?? 50, 200);
+    const offset = filters?.offset ?? 0;
+
+    const logs = await db
+      .select()
+      .from(systemLogs)
+      .where(whereExpr as any)
+      .orderBy(desc(systemLogs.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return { total, logs };
+  }
+
+  async createSystemLog(log: {
+    action: string;
+    description?: string | null;
+    userId?: string | null;
+    entityType?: string | null;
+    entityId?: string | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
+    metadata?: any;
+    severity?: string;
+  }): Promise<any> {
+    const [row] = await db
+      .insert(systemLogs)
+      .values({
+        action: log.action,
+        description: (log.description ?? null) as any,
+        userId: (log.userId as any) ?? null,
+        entityType: (log.entityType ?? null) as any,
+        entityId: (log.entityId ?? null) as any,
+        ipAddress: (log.ipAddress ?? null) as any,
+        userAgent: (log.userAgent ?? null) as any,
+        metadata: log.metadata ? JSON.stringify(log.metadata) : (null as any),
+        severity: (log.severity as any) ?? ('low' as any),
+      } as any)
+      .returning();
+    return row as any;
+  }
+
+  async clearSystemLogs(olderThanDays?: number): Promise<number> {
+    if (!olderThanDays) {
+      await db.delete(systemLogs);
+      return 0;
+    }
+    const threshold = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000);
+    await db.delete(systemLogs).where(lte(systemLogs.createdAt as any, threshold as any));
+    return 0;
   }
 }
 

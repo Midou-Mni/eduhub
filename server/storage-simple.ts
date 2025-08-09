@@ -135,7 +135,7 @@ export class Storage implements IStorage {
     }
 
     if (filters?.role) {
-      query = query.where(eq(users.role, filters.role)) as any;
+      query = query.where(eq(users.role, filters.role as any)) as any;
     }
 
     return await query;
@@ -190,7 +190,7 @@ export class Storage implements IStorage {
       .leftJoin(categories, eq(courses.categoryId, categories.id))
       .where(eq(courses.teacherId, teacherId));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({
       ...row,
       enrollmentCount: 0,
       avgRating: null,
@@ -242,13 +242,13 @@ export class Storage implements IStorage {
 
     const materials = await this.getCourseMaterials(courseId);
 
-    return {
+    return {  
       ...result[0],
       enrollmentCount: 0,
       avgRating: null,
       revenue: 0,
-      materials,
-    };
+      materials, 
+    } as CourseWithDetails;
   }
 
   async createCourse(course: InsertCourse): Promise<Course> {
@@ -299,7 +299,7 @@ export class Storage implements IStorage {
       .leftJoin(categories, eq(courses.categoryId, categories.id))
       .where(eq(courses.status, 'published'));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({
       ...row,
       enrollmentCount: 0,
       avgRating: null,
@@ -345,7 +345,7 @@ export class Storage implements IStorage {
       .leftJoin(users, eq(courses.teacherId, users.id))
       .leftJoin(categories, eq(courses.categoryId, categories.id));
 
-    return result.map(row => ({
+    return result.map((row: any) => ({
       ...row,
       enrollmentCount: 0,
       avgRating: null,

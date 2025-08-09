@@ -267,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/users', requireAdmin, async (req, res) => {
     try {
       const { search, role, status } = req.query;
-      const users = await storage.getAllUsers({ search, role, status });
+      const users = await storage.getAllUsers({ search: search as string, role: role as string, status: status as string });
       res.json(users);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -290,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/courses', requireAdmin, async (req, res) => {
     try {
       const { search, status, category } = req.query;
-      const courses = await storage.getAllCourses({ search, status, category });
+      const courses = await storage.getAllCourses({ search: search as string, status: status as string, category: category as string });
       res.json(courses);
     } catch (error) {
       console.error('Error fetching admin courses:', error);

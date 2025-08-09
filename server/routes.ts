@@ -253,6 +253,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin notifications
+  app.get('/api/admin/notifications', requireAdmin, async (req, res) => {
+    try {
+      const rows = await storage.getAdminNotifications();
+      res.json(rows);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ message: 'Failed to fetch notifications' });
+    }
+  });
+
+  app.get('/api/admin/notifications/unread-count', requireAdmin, async (req, res) => {
+    try {
+      const summary = await storage.getUnreadNotificationSummary();
+      res.json(summary);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+      res.status(500).json({ message: 'Failed to fetch unread count' });
+    }
+  });
+
+  app.post('/api/admin/notifications/mark-all-read', requireAdmin, async (req, res) => {
+    try {
+      const remaining = await storage.markAllNotificationsRead();
+      res.json({ remaining });
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+      res.status(500).json({ message: 'Failed to mark notifications as read' });
+    }
+  });
+
+  // System logs
+  app.get('/api/admin/logs', requireAdmin, async (req, res) => {
+    try {
+      const { search, severity, userId, entityType, dateFrom, dateTo, limit, offset } = req.query;
+      const result = await storage.getSystemLogs({
+        search: search as string,
+        severity: severity as string,
+        userId: userId as string,
+        entityType: entityType as string,
+        dateFrom: dateFrom as string,
+        dateTo: dateTo as string,
+        limit: limit ? parseInt(limit as string, 10) : undefined,
+        offset: offset ? parseInt(offset as string, 10) : undefined,
+      });
+      res.json(result);
+    } catch (error) {
+      console.error('Error fetching system logs:', error);
+      res.status(500).json({ message: 'Failed to fetch system logs' });
+    }
+  });
+
+  app.post('/api/admin/logs', requireAdmin, async (req: any, res) => {
+    try {
+      const log = await storage.createSystemLog({
+        ...req.body,
+        userId: req.user?.id,
+        ipAddress: (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || null,
+        userAgent: req.headers['user-agent'] as string,
+      });
+      res.json(log);
+    } catch (error) {
+      console.error('Error creating log:', error);
+      res.status(500).json({ message: 'Failed to create log' });
+    }
+  });
+
+  app.delete('/api/admin/logs', requireAdmin, async (req, res) => {
+    try {
+      const { olderThanDays } = req.query;
+      const result = await storage.clearSystemLogs(olderThanDays ? parseInt(olderThanDays as string, 10) : undefined);
+      res.json({ cleared: true, remainingUnread: result });
+    } catch (error) {
+      console.error('Error clearing logs:', error);
+      res.status(500).json({ message: 'Failed to clear logs' });
+    }
+  });
+
+  // System status
+  app.get('/api/admin/system-status', requireAdmin, async (req, res) => {
+    try {
+      const uptimeSec = process.uptime();
+      const memory = process.memoryUsage();
+      res.json({
+        uptimeSec,
+        memory,
+        env: process.env.NODE_ENV || 'development',
+        time: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Error fetching system status:', error);
+      res.status(500).json({ message: 'Failed to fetch system status' });
+    }
+  });
+
   app.get('/api/admin/analytics', requireAdmin, async (req, res) => {
     try {
       const { timeRange } = req.query;
@@ -267,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/users', requireAdmin, async (req, res) => {
     try {
       const { search, role, status } = req.query;
-      const users = await storage.getAllUsers({ search, role, status });
+      const users = await storage.getAllUsers({ search: search as string, role: role as string, status: status as string }); 
       res.json(users);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -290,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/courses', requireAdmin, async (req, res) => {
     try {
       const { search, status, category } = req.query;
-      const courses = await storage.getAllCourses({ search, status, category });
+      const courses = await storage.getAllCourses({ search: search as string, status: status as string, category: category as string });
       res.json(courses);
     } catch (error) {
       console.error('Error fetching admin courses:', error);
