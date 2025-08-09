@@ -68,7 +68,7 @@ export default function UserManagement() {
     queryKey: ["/api/admin/users", { search: searchQuery, role: roleFilter, status: statusFilter }],
   });
 
-  const { data: userStats } = useQuery({
+  const { data: userStats } = useQuery<any>({
     queryKey: ["/api/admin/users/stats"],
   });
 
@@ -178,9 +178,9 @@ export default function UserManagement() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats?.total || 0}</div>
+            <div className="text-2xl font-bold">{userStats?.total ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{userStats?.newThisMonth || 0} this month
+              +{userStats?.newThisMonth ?? 0} this month
             </p>
           </CardContent>
         </Card>
@@ -191,9 +191,9 @@ export default function UserManagement() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats?.active || 0}</div>
+            <div className="text-2xl font-bold">{userStats?.active ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              {((userStats?.active / userStats?.total) * 100).toFixed(1)}% of total
+              {(((userStats?.active ?? 0) / (userStats?.total ?? 1)) * 100).toFixed(1)}% of total
             </p>
           </CardContent>
         </Card>
@@ -204,9 +204,9 @@ export default function UserManagement() {
             <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats?.teachers || 0}</div>
+            <div className="text-2xl font-bold">{userStats?.teachers ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              {((userStats?.teachers / userStats?.total) * 100).toFixed(1)}% of users
+              {(((userStats?.teachers ?? 0) / (userStats?.total ?? 1)) * 100).toFixed(1)}% of users
             </p>
           </CardContent>
         </Card>
@@ -217,9 +217,9 @@ export default function UserManagement() {
             <Users className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats?.students || 0}</div>
+            <div className="text-2xl font-bold">{userStats?.students ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              {((userStats?.students / userStats?.total) * 100).toFixed(1)}% of users
+              {(((userStats?.students ?? 0) / (userStats?.total ?? 1)) * 100).toFixed(1)}% of users
             </p>
           </CardContent>
         </Card>
@@ -298,7 +298,7 @@ export default function UserManagement() {
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <Avatar>
-                        <AvatarImage src={user.profileImageUrl} />
+                        <AvatarImage src={user.profileImageUrl || undefined} />
                         <AvatarFallback>
                           {user.firstName?.[0]}{user.lastName?.[0]}
                         </AvatarFallback>
@@ -326,10 +326,10 @@ export default function UserManagement() {
                   <TableCell>{user.enrollmentCount || 0}</TableCell>
                   <TableCell>${user.totalRevenue?.toLocaleString() || 0}</TableCell>
                   <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}
                   </TableCell>
                   <TableCell>
-                    {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+                    {(user as any).lastLoginAt ? new Date((user as any).lastLoginAt as string | number | Date).toLocaleDateString() : 'Never'}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

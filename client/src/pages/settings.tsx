@@ -286,7 +286,7 @@ export default function Settings() {
               </div>
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">Member Since</Label>
-                <p className="text-sm">{(user as UserType)?.createdAt ? new Date((user as UserType).createdAt).toLocaleDateString() : 'N/A'}</p>
+                <p className="text-sm">{(user as UserType)?.createdAt ? new Date((user as UserType).createdAt as unknown as string | number | Date).toLocaleDateString() : 'N/A'}</p>
               </div>
             </div>
 

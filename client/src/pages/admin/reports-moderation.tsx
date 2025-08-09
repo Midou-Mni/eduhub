@@ -67,13 +67,12 @@ import {
   Filter
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import type { ReportWithDetails, SystemLogWithUser } from "@shared/schema";
 
 export default function ReportsModeration() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [selectedReport, setSelectedReport] = useState<ReportWithDetails | null>(null);
+  const [selectedReport, setSelectedReport] = useState<any | null>(null);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showActionDialog, setShowActionDialog] = useState(false);
   const [actionType, setActionType] = useState("");
@@ -81,15 +80,15 @@ export default function ReportsModeration() {
 
   const queryClient = useQueryClient();
 
-  const { data: reports, isLoading } = useQuery<ReportWithDetails[]>({
+  const { data: reports, isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/reports", { search: searchQuery, status: statusFilter, type: typeFilter }],
   });
 
-  const { data: reportStats } = useQuery({
+  const { data: reportStats } = useQuery<any>({
     queryKey: ["/api/admin/reports/stats"],
   });
 
-  const { data: systemLogs } = useQuery<SystemLogWithUser[]>({
+  const { data: systemLogs } = useQuery<any[]>({
     queryKey: ["/api/admin/logs", { limit: 50 }],
   });
 
@@ -114,7 +113,7 @@ export default function ReportsModeration() {
     },
   });
 
-  const handleReportAction = (report: ReportWithDetails, action: string) => {
+  const handleReportAction = (report: any, action: string) => {
     setSelectedReport(report);
     setActionType(action);
     setShowActionDialog(true);
@@ -201,7 +200,7 @@ export default function ReportsModeration() {
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reportStats?.pending || 0}</div>
+            <div className="text-2xl font-bold">{reportStats?.pending ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Require immediate attention
             </p>
@@ -214,7 +213,7 @@ export default function ReportsModeration() {
             <Eye className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reportStats?.underReview || 0}</div>
+            <div className="text-2xl font-bold">{reportStats?.underReview ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Currently being reviewed
             </p>
@@ -227,9 +226,9 @@ export default function ReportsModeration() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reportStats?.resolvedToday || 0}</div>
+            <div className="text-2xl font-bold">{reportStats?.resolvedToday ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{reportStats?.resolvedThisWeek || 0} this week
+              +{reportStats?.resolvedThisWeek ?? 0} this week
             </p>
           </CardContent>
         </Card>
@@ -240,7 +239,7 @@ export default function ReportsModeration() {
             <Clock className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reportStats?.avgResponseTime || '2.5'}h</div>
+            <div className="text-2xl font-bold">{reportStats?.avgResponseTime ?? '2.5'}h</div>
             <p className="text-xs text-muted-foreground">
               Average response time
             </p>

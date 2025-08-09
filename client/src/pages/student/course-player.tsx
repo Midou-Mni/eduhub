@@ -269,7 +269,7 @@ export default function CoursePlayer() {
           <div className="p-4">
             <h3 className="text-white font-semibold mb-4">Course Content</h3>
             <div className="space-y-2">
-              {course.materials.map((material, index) => (
+              {course.materials.map((material, index: number) => (
                 <button
                   key={material.id}
                   onClick={() => setCurrentMaterialIndex(index)}

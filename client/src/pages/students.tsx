@@ -121,7 +121,7 @@ export default function Students() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round(enrollments.reduce((acc, e) => acc + e.progress, 0) / enrollments.length)}%
+              {Math.round(enrollments.reduce((acc, e) => acc + (e.progress ?? 0), 0) / enrollments.length)}%
             </div>
           </CardContent>
         </Card>
@@ -145,7 +145,7 @@ export default function Students() {
                 <Avatar className="h-12 w-12">
                   <AvatarImage src={enrollment.student.profileImageUrl || undefined} />
                   <AvatarFallback>
-                    {getInitials(enrollment.student.firstName, enrollment.student.lastName)}
+                    {getInitials(enrollment.student.firstName ?? undefined, enrollment.student.lastName ?? undefined)}
                   </AvatarFallback>
                 </Avatar>
 
@@ -154,8 +154,8 @@ export default function Students() {
                     <p className="text-sm font-medium text-neutral-900 truncate">
                       {enrollment.student.firstName} {enrollment.student.lastName}
                     </p>
-                    <Badge variant="outline" className={`${getStatusColor(enrollment.progress)}/10`}>
-                      {getStatusText(enrollment.progress)}
+                    <Badge variant="outline" className={`${getStatusColor(enrollment.progress ?? 0)}/10`}>
+                      {getStatusText(enrollment.progress ?? 0)}
                     </Badge>
                   </div>
                   <p className="text-sm text-neutral-500 truncate">
@@ -164,7 +164,7 @@ export default function Students() {
                   <p className="text-sm text-neutral-500">
                     <span className="font-medium">{enrollment.course.title}</span>
                     {" • "}
-                    Enrolled {formatDate(enrollment.enrolledAt)}
+                    Enrolled {formatDate(enrollment.enrolledAt?.toString() ?? '')} 
                   </p>
                 </div>
 

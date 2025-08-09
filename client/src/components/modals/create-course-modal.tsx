@@ -6,6 +6,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import type { Category } from "@shared/schema";
 import {
   Dialog,
   DialogContent,
@@ -50,7 +51,10 @@ interface CreateCourseModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function CreateCourseModal({ open, onOpenChange }: CreateCourseModalProps) {
+export default function CreateCourseModal({
+  open,
+  onOpenChange,
+}: CreateCourseModalProps) {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const { toast } = useToast();
@@ -68,13 +72,15 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
   });
 
   // Fetch categories
-  const { data: categories } = useQuery({
+  const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
 
   // Create course mutation
   const createCourseMutation = useMutation({
-    mutationFn: async (data: CreateCourseFormData & { thumbnailUrl?: string }) => {
+    mutationFn: async (
+      data: CreateCourseFormData & { thumbnailUrl?: string }
+    ) => {
       return await apiRequest("POST", "/api/courses", {
         ...data,
         price: Number(data.price),
@@ -113,7 +119,7 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("thumbnail", file);
-      
+
       const response = await fetch("/api/upload/thumbnail", {
         method: "POST",
         body: formData,
@@ -128,7 +134,9 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
     },
   });
 
-  const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setThumbnailFile(file);
@@ -158,7 +166,9 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
 
       // Upload thumbnail if provided
       if (thumbnailFile) {
-        const uploadResult = await uploadThumbnailMutation.mutateAsync(thumbnailFile);
+        const uploadResult = await uploadThumbnailMutation.mutateAsync(
+          thumbnailFile
+        );
         thumbnailUrl = uploadResult.url;
       }
 
@@ -172,7 +182,8 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
     }
   };
 
-  const isLoading = createCourseMutation.isPending || uploadThumbnailMutation.isPending;
+  const isLoading =
+    createCourseMutation.isPending || uploadThumbnailMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -180,7 +191,8 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
         <DialogHeader>
           <DialogTitle>Create New Course</DialogTitle>
           <DialogDescription>
-            Fill in the details to create your new course. You can always edit these later.
+            Fill in the details to create your new course. You can always edit
+            these later.
           </DialogDescription>
         </DialogHeader>
 
@@ -207,14 +219,17 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories?.map((category) => (
+                        {categories?.map((category: Category) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
                           </SelectItem>
@@ -272,15 +287,20 @@ export default function CreateCourseModal({ open, onOpenChange }: CreateCourseMo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Difficulty Level *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="intermediate">
+                          Intermediate
+                        </SelectItem>
                         <SelectItem value="advanced">Advanced</SelectItem>
                       </SelectContent>
                     </Select>

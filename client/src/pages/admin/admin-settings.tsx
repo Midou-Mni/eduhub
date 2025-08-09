@@ -43,7 +43,6 @@ import {
   Trash2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import type { PlatformSetting, FeatureFlag } from "@shared/schema";
 
 export default function AdminSettings() {
   const [selectedTab, setSelectedTab] = useState("general");
@@ -52,15 +51,15 @@ export default function AdminSettings() {
 
   const queryClient = useQueryClient();
 
-  const { data: settings } = useQuery<PlatformSetting[]>({
+  const { data: settings } = useQuery<any[]>({
     queryKey: ["/api/admin/settings"],
   });
 
-  const { data: featureFlags } = useQuery<FeatureFlag[]>({
+  const { data: featureFlags } = useQuery<any[]>({
     queryKey: ["/api/admin/feature-flags"],
   });
 
-  const { data: systemInfo } = useQuery({
+  const { data: systemInfo } = useQuery<any>({
     queryKey: ["/api/admin/system-info"],
   });
 
@@ -711,7 +710,7 @@ export default function AdminSettings() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Platform Version</Label>
-                    <p className="text-sm font-mono">{systemInfo?.version || '1.0.0'}</p>
+                    <p className="text-sm font-mono">{systemInfo?.version ?? '1.0.0'}</p>
                   </div>
                   <div>
                     <Label>Database Status</Label>
@@ -722,11 +721,11 @@ export default function AdminSettings() {
                   </div>
                   <div>
                     <Label>Uptime</Label>
-                    <p className="text-sm">{systemInfo?.uptime || '24 hours'}</p>
+                    <p className="text-sm">{systemInfo?.uptime ?? '24 hours'}</p>
                   </div>
                   <div>
                     <Label>Memory Usage</Label>
-                    <p className="text-sm">{systemInfo?.memoryUsage || '45%'}</p>
+                    <p className="text-sm">{systemInfo?.memoryUsage ?? '45%'}</p>
                   </div>
                 </div>
               </CardContent>

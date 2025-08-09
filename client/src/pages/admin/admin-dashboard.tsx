@@ -22,14 +22,14 @@ import {
   Bell
 } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import type { AdminDashboardStats, PlatformAnalytics } from "@shared/schema";
+import type { AdminDashboardStats } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<AdminDashboardStats>({
     queryKey: ["/api/admin/stats"],
   });
 
-  const { data: analytics, isLoading: analyticsLoading } = useQuery<PlatformAnalytics>({
+  const { data: analytics, isLoading: analyticsLoading } = useQuery<any>({
     queryKey: ["/api/admin/analytics"],
   });
 
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
                 <CardDescription>Most popular course categories</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCategories?.map((category, index) => (
+                {analytics?.topCategories?.map((category: any, index: number) => (
                   <div key={category.category} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 rounded-full bg-primary" />
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics?.topCourses?.map((item: any, index) => (
+                {analytics?.topCourses?.map((item: any, index: number) => (
                   <div key={item.course.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">

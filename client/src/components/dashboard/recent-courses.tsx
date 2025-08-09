@@ -137,7 +137,7 @@ export default function RecentCourses({ courses, isLoading }: RecentCoursesProps
                 <p className="text-lg font-semibold text-neutral-700">
                   {formatCurrency(course.price)}
                 </p>
-                <Badge variant="outline" className={getStatusColor(course.status)}>
+                <Badge variant="outline" className={getStatusColor(course.status ?? "")}>
                   {course.status}
                 </Badge>
               </div>

@@ -226,11 +226,11 @@ export default function Analytics() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Average Progress</span>
                     <span className="text-sm text-muted-foreground">
-                      {Math.round(enrollments.reduce((acc, e) => acc + e.progress, 0) / enrollments.length)}%
+                      {Math.round(enrollments.reduce((acc, e) => acc + (e.progress ?? 0), 0) / enrollments.length)}%
                     </span>
                   </div>
                   <Progress 
-                    value={enrollments.reduce((acc, e) => acc + e.progress, 0) / enrollments.length} 
+                    value={enrollments.reduce((acc, e) => acc + (e.progress ?? 0), 0) / enrollments.length} 
                     className="h-2"
                   />
                 </div>
@@ -241,7 +241,7 @@ export default function Analytics() {
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Active Students</span>
                       <span className="font-medium">
-                        {enrollments.filter(e => e.progress > 0 && e.progress < 100).length}
+                        {enrollments.filter(e => e.progress && e.progress > 0 && e.progress < 100).length}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">

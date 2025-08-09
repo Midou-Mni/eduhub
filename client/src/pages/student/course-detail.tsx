@@ -46,7 +46,7 @@ export default function CourseDetail() {
       // Simulate payment first
       await apiRequest("POST", "/api/student/simulate-payment", {
         courseId: id,
-        amount: parseFloat(course?.price || "0"),
+        amount: parseFloat(course?.price.toString() || "0"),
       });
     },
     onSuccess: () => {
@@ -199,7 +199,7 @@ export default function CourseDetail() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {course.materials.map((material, index) => (
+                  {course.materials.map((material, index: number) => (
                     <div
                       key={material.id}
                       className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-lg"
@@ -290,7 +290,7 @@ export default function CourseDetail() {
                     </div>
                   )}
                   <div className="text-3xl font-bold text-primary mb-2">
-                    {formatPrice(course.price)}
+                    {formatPrice(course.price.toString())}
                   </div>
                 </div>
               </CardHeader>

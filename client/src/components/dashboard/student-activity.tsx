@@ -119,7 +119,7 @@ export default function StudentActivity({ activities, isLoading }: StudentActivi
               <Avatar className="w-10 h-10">
                 <AvatarImage src={activity.student.profileImageUrl || undefined} />
                 <AvatarFallback>
-                  {getInitials(activity.student.firstName, activity.student.lastName)}
+                  {getInitials(activity.student.firstName ?? "", activity.student.lastName ?? "")}
                 </AvatarFallback>
               </Avatar>
               
@@ -134,7 +134,7 @@ export default function StudentActivity({ activities, isLoading }: StudentActivi
                   </span>
                 </p>
                 <p className="text-xs text-neutral-400">
-                  {formatTimeAgo(activity.createdAt)}
+                 {formatTimeAgo(activity.createdAt?.toISOString() ?? "")}
                 </p>
               </div>
               

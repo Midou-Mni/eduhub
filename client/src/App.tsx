@@ -25,6 +25,9 @@ import AdminSettings from "@/pages/admin/admin-settings";
 import ReportsModeration from "@/pages/admin/reports-moderation";
 import AdminSidebar from "@/components/layout/admin-sidebar";
 import AdminHeader from "@/components/layout/admin-header";
+import AdminLogs from "@/pages/admin/admin-logs";
+import AdminHelp from "@/pages/admin/admin-help";
+import AdminStatus from "@/pages/admin/admin-status";
 
 // Student Components
 import StudentApp from "@/student-app";
@@ -63,6 +66,9 @@ function AdminRouter() {
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/reports" component={ReportsModeration} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/logs" component={AdminLogs} />
+      <Route path="/admin/help" component={AdminHelp} />
+      <Route path="/admin/status" component={AdminStatus} />
       <Route>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">

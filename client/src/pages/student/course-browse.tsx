@@ -217,7 +217,7 @@ export default function CourseBrowse() {
                         </Badge>
                         <div className="text-right">
                           <p className="text-lg font-bold text-primary">
-                            {formatPrice(course.price)}
+                            {formatPrice(course.price.toString())}
                           </p>
                         </div>
                       </div>

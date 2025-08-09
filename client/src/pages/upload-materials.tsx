@@ -205,7 +205,7 @@ export default function UploadMaterials() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => window.open(material.fileUrl, '_blank')}
+                            onClick={() => window.open(material.fileUrl ?? '', '_blank')} 
                           >
                             <Eye className="h-4 w-4" />
                           </Button>

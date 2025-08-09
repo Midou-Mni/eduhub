@@ -71,11 +71,11 @@ export default function CourseManagement() {
     queryKey: ["/api/admin/courses", { search: searchQuery, status: statusFilter, category: categoryFilter }],
   });
 
-  const { data: courseStats } = useQuery({
+  const { data: courseStats } = useQuery<any>({
     queryKey: ["/api/admin/courses/stats"],
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories } = useQuery<any[]>({
     queryKey: ["/api/categories"],
   });
 
@@ -188,9 +188,9 @@ export default function CourseManagement() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{courseStats?.total || 0}</div>
+            <div className="text-2xl font-bold">{courseStats?.total ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              +{courseStats?.newThisMonth || 0} this month
+              +{courseStats?.newThisMonth ?? 0} this month
             </p>
           </CardContent>
         </Card>
@@ -201,9 +201,9 @@ export default function CourseManagement() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{courseStats?.published || 0}</div>
+            <div className="text-2xl font-bold">{courseStats?.published ?? 0}</div>
             <p className="text-xs text-muted-foreground">
-              {((courseStats?.published / courseStats?.total) * 100).toFixed(1)}% of total
+              {(((courseStats?.published ?? 0) / (courseStats?.total ?? 1)) * 100).toFixed(1)}% of total
             </p>
           </CardContent>
         </Card>
@@ -214,7 +214,7 @@ export default function CourseManagement() {
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{courseStats?.pendingReview || 0}</div>
+            <div className="text-2xl font-bold">{courseStats?.pendingReview ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Awaiting moderation
             </p>
@@ -227,7 +227,7 @@ export default function CourseManagement() {
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{courseStats?.reported || 0}</div>
+            <div className="text-2xl font-bold">{courseStats?.reported ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Need attention
             </p>
@@ -271,7 +271,7 @@ export default function CourseManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories?.map((category: any) => (
+                {(categories ?? []).map((category: any) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
@@ -325,7 +325,7 @@ export default function CourseManagement() {
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Avatar className="w-8 h-8">
-                        <AvatarImage src={course.teacher.profileImageUrl} />
+                        <AvatarImage src={course.teacher.profileImageUrl || undefined} />
                         <AvatarFallback>
                           {course.teacher.firstName?.[0]}{course.teacher.lastName?.[0]}
                         </AvatarFallback>
@@ -344,8 +344,8 @@ export default function CourseManagement() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      {getStatusIcon(course.status)}
-                      <Badge variant={getStatusBadgeColor(course.status)}>
+                      {getStatusIcon(course.status || "")}
+                      <Badge variant={getStatusBadgeColor(course.status || "") }>
                         {course.status}
                       </Badge>
                     </div>
@@ -378,7 +378,7 @@ export default function CourseManagement() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {new Date(course.createdAt).toLocaleDateString()}
+                    {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : ""}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

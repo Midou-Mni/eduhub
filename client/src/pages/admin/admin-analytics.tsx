@@ -25,13 +25,12 @@ import {
   Zap
 } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import type { PlatformAnalytics } from "@shared/schema";
 
 export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState("30d");
   const [chartType, setChartType] = useState("line");
 
-  const { data: analytics, isLoading } = useQuery<PlatformAnalytics>({
+  const { data: analytics, isLoading } = useQuery<any>({
     queryKey: ["/api/admin/analytics", { timeRange }],
   });
 
@@ -193,7 +192,7 @@ export default function AdminAnalytics() {
                 <CardDescription>Most popular course categories</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCategories?.slice(0, 5).map((category, index) => (
+                {analytics?.topCategories?.slice(0, 5).map((category: any, index: number) => (
                   <div key={category.category} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${
@@ -223,7 +222,7 @@ export default function AdminAnalytics() {
                 <CardDescription>Based on revenue and enrollments</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topTeachers?.slice(0, 5).map((item, index) => (
+                {analytics?.topTeachers?.slice(0, 5).map((item: any, index: number) => (
                   <div key={item.teacher.id} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
@@ -348,7 +347,7 @@ export default function AdminAnalytics() {
                 <CardDescription>Top courses by enrollment</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCourses?.slice(0, 3).map((item, index) => (
+                {analytics?.topCourses?.slice(0, 3).map((item: any, index: number) => (
                   <div key={item.course.id} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 rounded-full bg-primary" />
@@ -375,7 +374,7 @@ export default function AdminAnalytics() {
                 <CardDescription>Distribution by category</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCategories?.slice(0, 4).map((category, index) => (
+                {analytics?.topCategories?.slice(0, 4).map((category: any, index: number) => (
                   <div key={category.category} className="flex items-center justify-between">
                     <span className="font-medium">{category.category}</span>
                     <Badge variant="outline">{category.courseCount}</Badge>
@@ -412,7 +411,7 @@ export default function AdminAnalytics() {
                 <CardDescription>By category</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCategories?.map((category, index) => (
+                {analytics?.topCategories?.map((category: any, index: number) => (
                   <div key={category.category} className="flex items-center justify-between">
                     <span className="font-medium">{category.category}</span>
                     <span className="text-sm">${(category.enrollmentCount * 50).toLocaleString()}</span>
@@ -427,7 +426,7 @@ export default function AdminAnalytics() {
                 <CardDescription>Highest earning courses</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {analytics?.topCourses?.slice(0, 4).map((item, index) => (
+                {analytics?.topCourses?.slice(0, 4).map((item: any, index: number) => (
                   <div key={item.course.id} className="flex items-center justify-between">
                     <span className="font-medium truncate max-w-[200px]">{item.course.title}</span>
                     <span className="text-sm font-medium">${item.revenue.toLocaleString()}</span>
